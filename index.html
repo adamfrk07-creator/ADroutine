@@ -372,6 +372,7 @@ const DAILY=[
   {id:'h2',icon:'💬',name:'Talked to a woman'},
   {id:'h3',icon:'💧',name:'Water 2.5L'},
   {id:'h4',icon:'💪',name:'Take creatine'},
+  {id:'h5',icon:'🏋️',name:'Workout done'},
 ];
 const ALL=[...MORNING,...EVENING,...DAILY];
 const TOTAL=ALL.length;
@@ -411,20 +412,20 @@ function calcStreak(){
   const cur=new Date();
   // If today done, include today; else start from yesterday
   const td=todayData();
-  const todayDone=Object.values(td.tasks).filter(Boolean).length===TOTAL;
+  const todayDone=Object.values(td.tasks).filter(Boolean).length>=TOTAL*0.75;
   if(!todayDone)cur.setDate(cur.getDate()-1);
   while(true){
     const k=dateKey(cur);
     const d=history[k];
     if(!d)break;
     const cnt=Object.values(d.tasks||{}).filter(Boolean).length;
-    if(cnt===TOTAL){streak++;cur.setDate(cur.getDate()-1);}
+    if(cnt>=TOTAL*0.75){streak++;cur.setDate(cur.getDate()-1);}
     else break;
   }
   return streak;
 }
 function calcBest(){
-  const keys=Object.keys(history).filter(k=>Object.values(history[k].tasks||{}).filter(Boolean).length===TOTAL).sort();
+  const keys=Object.keys(history).filter(k=>Object.values(history[k].tasks||{}).filter(Boolean).length>=TOTAL*0.75).sort();
   let best=0,cur=0,prev=null;
   for(const k of keys){
     if(!prev){cur=1;}
@@ -489,7 +490,7 @@ function renderToday(){
     const isToday=k===today;
     const cnt=history[k]?Object.values(history[k].tasks||{}).filter(Boolean).length:0;
     const dot=document.createElement('div');
-    dot.className='sdot'+(isToday?' today':(cnt===TOTAL?' on':''));
+    dot.className='sdot'+(isToday?' today':(cnt>=TOTAL*0.75?' on':''));
     dots.appendChild(dot);
   }
 
@@ -508,7 +509,7 @@ function renderToday(){
 function toggle(id){
   const d=todayData();
   d.tasks[id]=!d.tasks[id];
-  if(Object.values(d.tasks).filter(Boolean).length===TOTAL)d.done=true;
+  if(Object.values(d.tasks).filter(Boolean).length>=TOTAL*0.75)d.done=true;
   save();renderToday();
   if(d.tasks[id])showToast('✓ Done');
 }
@@ -578,7 +579,7 @@ function saveYday(){
   const yk=yKey();
   if(!history[yk])history[yk]={tasks:{},water:0,done:false,prompted:false};
   history[yk].tasks=ydayTasks;
-  history[yk].done=Object.values(ydayTasks).filter(Boolean).length===TOTAL;
+  history[yk].done=Object.values(ydayTasks).filter(Boolean).length>=TOTAL*0.75;
   history[yk].prompted=true;
   save();closeYday();renderToday();
   showToast(history[yk].done?'✅ Yesterday counted!':'📝 Yesterday saved');
@@ -595,7 +596,7 @@ function renderStreaks(){
     if(history[k]){
       const cnt=Object.values(history[k].tasks||{}).filter(Boolean).length;
       done7+=cnt;poss7+=TOTAL;
-      if(cnt===TOTAL)active7++;
+      if(cnt>=TOTAL*0.75)active7++;
     }
   }
   const avg7=poss7>0?Math.round(done7/poss7*100):0;
@@ -634,7 +635,7 @@ function renderCalendar(){
     let cls='ccell';
     if(isFuture)cls+=' future';
     else if(isToday)cls+=' today';
-    else if(cnt===TOTAL)cls+=' full';
+    else if(cnt>=TOTAL*0.75)cls+=' full';
     else if(cnt>0)cls+=' part';
     const el=document.createElement('div');el.className=cls;
     el.innerHTML=`<span>${d}</span>${cnt>0&&!isFuture?'<div class="ccell-dot"></div>':''}`;
