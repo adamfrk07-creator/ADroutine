@@ -175,6 +175,33 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
 .hbar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--lime), var(--teal)); }
 .hbar-pct { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--t3); width: 28px; text-align: right; flex-shrink: 0; }
 
+/* JOURNAL */
+.journal-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.jprompt { display: flex; flex-direction: column; gap: 4px; }
+.jlabel { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lime); opacity: 0.7; }
+.jinput { background: var(--s2); border: 1px solid var(--border); border-radius: var(--rxs); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px; padding: 10px 12px; resize: none; width: 100%; min-height: 60px; outline: none; line-height: 1.5; transition: border-color 0.18s; }
+.jinput::placeholder { color: var(--t3); }
+.jinput:focus { border-color: rgba(184,245,58,0.3); }
+.save-btn { display: block; width: calc(100% - 28px); margin: 10px 14px 14px; background: var(--lime); color: #06060e; border: none; border-radius: var(--rxs); padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: opacity 0.12s, transform 0.1s; }
+.save-btn:active { transform: scale(0.98); opacity: 0.88; }
+
+/* JOURNAL ENTRIES */
+.j-entry { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 8px; }
+.j-entry-head { padding: 13px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+.j-entry-head.open { border-bottom-color: var(--border); }
+.j-entry-date { font-size: 14px; font-weight: 600; }
+.j-entry-badge { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; margin-left: auto; }
+.badge-full { background: var(--lime-d); color: var(--lime); }
+.badge-part { background: var(--gold-d); color: var(--gold); }
+.badge-miss { background: var(--red-d); color: var(--red); }
+.j-entry-chevron { font-size: 10px; color: var(--t3); transition: transform 0.2s; }
+.j-entry-head.open .j-entry-chevron { transform: rotate(180deg); }
+.j-entry-body { display: none; padding: 12px 14px; }
+.j-entry-body.open { display: block; }
+.j-field-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); opacity: 0.7; margin-bottom: 3px; margin-top: 10px; }
+.j-field-label:first-child { margin-top: 0; }
+.j-field-text { font-size: 12.5px; color: var(--t2); line-height: 1.6; }
+
 /* SETTINGS */
 .settings-wrap { padding: 16px; }
 .setting-sec { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t3); margin: 16px 0 8px; }
@@ -242,6 +269,19 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
       <div class="water-drops" id="water-drops"></div>
     </div></div>
   </div>
+
+  <div class="section" style="margin-bottom:20px">
+    <div class="sec-label"><span class="sec-tag tg-lime">✍️ Daily Journal</span></div>
+    <div class="card">
+      <div class="journal-body">
+        <div class="jprompt"><div class="jlabel">What happened today</div><textarea class="jinput" id="j-happened" placeholder="Key moments, wins, challenges..." rows="2"></textarea></div>
+        <div class="jprompt"><div class="jlabel">What could have been better</div><textarea class="jinput" id="j-better" placeholder="Be honest with yourself..." rows="2"></textarea></div>
+        <div class="jprompt"><div class="jlabel">Short-term goals</div><textarea class="jinput" id="j-short" placeholder="This week / month..." rows="2"></textarea></div>
+        <div class="jprompt"><div class="jlabel">Long-term goals</div><textarea class="jinput" id="j-long" placeholder="1 year / 5 years..." rows="2"></textarea></div>
+      </div>
+      <button class="save-btn" onclick="saveJournal()">Save Today's Entry</button>
+    </div>
+  </div>
 </div>
 
 <!-- STREAKS -->
@@ -267,6 +307,9 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
   <div class="heatmap"><div class="hm-bars" id="hm-bars"></div><div style="display:flex;gap:5px" id="hm-days"></div></div>
   <div class="section"><div class="sec-label"><span class="sec-tag tg-lime">✅ Habit completion</span></div></div>
   <div class="habit-bars" id="habit-bars"></div>
+
+  <div class="section"><div class="sec-label"><span class="sec-tag tg-lime">📖 Journal entries</span></div></div>
+  <div style="padding: 0 16px 20px" id="j-entries"></div>
 </div>
 
 <!-- SETTINGS -->
@@ -283,6 +326,10 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
       <button class="tog" id="weekend-tog"><div class="tog-thumb"></div></button>
     </div>
     <div class="setting-sec">Data</div>
+    <div class="setting-row" onclick="openYday()">
+      <div class="setting-left"><div class="setting-icon">⏪</div><div><div class="setting-label">Log yesterday</div><div class="setting-sub">Edit anytime, not just once</div></div></div>
+      <div class="setting-right">›</div>
+    </div>
     <div class="setting-row" onclick="resetToday()">
       <div class="setting-left"><div class="setting-icon">🔄</div><div><div class="setting-label">Reset today</div><div class="setting-sub">Clears all checkboxes</div></div></div>
       <div class="setting-right">›</div>
@@ -460,6 +507,7 @@ function renderToday() {
   renderStreak();
   renderWater();
   checkYdayBanner();
+  loadJournal();
 }
 
 function toggle(id) {
@@ -519,25 +567,23 @@ function renderStreak() {
 
 // ─── YESTERDAY ───
 function checkYdayBanner() {
-  const yk = yKey();
   const wrap = document.getElementById('yday-banner-wrap');
-  const ydata = state[yk];
-  const alreadyLogged = ydata?._prompted;
-  const noData = !ydata || Object.keys(ydata.habits||{}).length === 0;
-  if (!alreadyLogged && noData) {
-    const d = new Date(); d.setDate(d.getDate()-1);
-    const label = d.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
-    wrap.innerHTML = `<div class="yday-banner" onclick="openYday()">
-      <div class="yday-title">⏪ Log yesterday's tasks</div>
-      <div class="yday-sub">Did you complete your routine on ${label}?</div>
-    </div>`;
-  } else { wrap.innerHTML = ''; }
+  const d = new Date(); d.setDate(d.getDate()-1);
+  const label = d.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
+  const yk = yKey();
+  const cnt = state[yk] ? Object.values(state[yk].habits||{}).filter(Boolean).length : 0;
+  const TOTAL = getAllHabits('weekday').length;
+  const status = cnt === 0 ? 'Nothing logged yet' : `${cnt}/${TOTAL} tasks logged`;
+  wrap.innerHTML = `<div class="yday-banner" onclick="openYday()">
+    <div class="yday-title">⏪ ${label}</div>
+    <div class="yday-sub">${status} — tap to edit anytime</div>
+  </div>`;
 }
 
 function openYday() {
   const yk = yKey();
   if (!state[yk]) state[yk] = { habits:{}, water:0, mode:'weekday' };
-  ydayTasks = { ...state[yk].habits };
+  ydayTasks = { ...state[yk].habits }; // always load what's already saved
   const d = new Date(); d.setDate(d.getDate()-1);
   document.getElementById('yday-modal-date').textContent =
     d.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
@@ -562,6 +608,63 @@ function saveYday() {
   const cnt = Object.values(ydayTasks).filter(Boolean).length;
   const TOTAL = getAllHabits('weekday').length;
   showToast(cnt/TOTAL >= STREAK_THRESHOLD ? '✅ Yesterday counted!' : '📝 Yesterday saved');
+}
+
+// ─── JOURNAL ───
+function loadJournal() {
+  const j = dayState().journal || {};
+  document.getElementById('j-happened').value = j.happened || '';
+  document.getElementById('j-better').value   = j.better   || '';
+  document.getElementById('j-short').value    = j.short    || '';
+  document.getElementById('j-long').value     = j.long     || '';
+}
+function saveJournal() {
+  const d = dayState();
+  d.journal = {
+    happened: document.getElementById('j-happened').value,
+    better:   document.getElementById('j-better').value,
+    short:    document.getElementById('j-short').value,
+    long:     document.getElementById('j-long').value,
+  };
+  d.habits['journal'] = !!(d.journal.happened || d.journal.better || d.journal.short || d.journal.long);
+  saveState(); renderToday();
+  showToast('Journal saved ✓');
+}
+function renderJournalEntries() {
+  const el = document.getElementById('j-entries');
+  const TOTAL = getAllHabits('weekday').length;
+  const keys = Object.keys(state).filter(k => !k.startsWith('_')).sort().reverse();
+  if (!keys.length) { el.innerHTML = '<div style="color:var(--t3);font-size:13px">No entries yet.</div>'; return; }
+  el.innerHTML = keys.map(k => {
+    const s = state[k]; const j = s?.journal || {};
+    const cnt = Object.values(s?.habits||{}).filter(Boolean).length;
+    const hasJ = j.happened || j.better || j.short || j.long;
+    if (cnt === 0 && !hasJ) return '';
+    const pct = Math.round(cnt / TOTAL * 100);
+    let bc = 'badge-miss', bt = 'Missed';
+    if (pct >= 75) { bc = 'badge-full'; bt = pct + '% ✓'; }
+    else if (pct > 0) { bc = 'badge-part'; bt = pct + '%'; }
+    const d = new Date(k + 'T12:00:00');
+    const ds = `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+    return `<div class="j-entry" id="entry-${k}">
+      <div class="j-entry-head" onclick="toggleEntry('${k}')" id="ehead-${k}">
+        <div class="j-entry-date">${ds}</div>
+        <div class="j-entry-badge ${bc}">${bt}</div>
+        <div class="j-entry-chevron">▼</div>
+      </div>
+      <div class="j-entry-body" id="ebody-${k}">
+        ${j.happened ? `<div class="j-field-label">What happened</div><div class="j-field-text">${j.happened}</div>` : ''}
+        ${j.better   ? `<div class="j-field-label">What could be better</div><div class="j-field-text">${j.better}</div>` : ''}
+        ${j.short    ? `<div class="j-field-label">Short-term goals</div><div class="j-field-text">${j.short}</div>` : ''}
+        ${j.long     ? `<div class="j-field-label">Long-term goals</div><div class="j-field-text">${j.long}</div>` : ''}
+        ${!hasJ ? '<div class="j-field-text" style="color:var(--t3);font-size:11px">No journal written.</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleEntry(k) {
+  document.getElementById('ehead-'+k)?.classList.toggle('open');
+  document.getElementById('ebody-'+k)?.classList.toggle('open');
 }
 
 // ─── STREAKS PAGE ───
@@ -637,6 +740,8 @@ function renderStreaks() {
       <div class="hbar-pct">${pct}%</div>
     </div>`;
   }).join('');
+
+  renderJournalEntries();
 }
 
 function renderCalendar() {
