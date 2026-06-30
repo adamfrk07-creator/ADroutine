@@ -870,12 +870,16 @@ function showToast(msg) {
 
 // ─── INIT ───
 function init() {
-  const now = new Date();
-  calYear = now.getFullYear(); calMonth = now.getMonth();
-  document.getElementById('today-date').textContent =
-    `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-  loadState();
-  renderToday();
+  try {
+    const now = new Date();
+    calYear = now.getFullYear(); calMonth = now.getMonth();
+    document.getElementById('today-date').textContent =
+      `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    loadState();
+    renderToday();
+  } catch (e) {
+    document.body.innerHTML = '<div style="padding:40px 20px;color:#fff;font-family:monospace;font-size:13px;white-space:pre-wrap">ERROR LOADING APP:\n\n' + e.message + '\n\n' + (e.stack||'') + '</div>';
+  }
 }
 init();
 </script>
