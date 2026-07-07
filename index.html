@@ -378,6 +378,7 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
 // ─── ADAM'S DATA ───
 const WEEKDAY = {
   morning: [
+    { id:'m0', icon:'💧', name:'Drink water',                sub:'First thing after waking',     time:'6:30' },
     { id:'m1', icon:'⚡', name:'Morning workout',             sub:'Full body activation',        time:'6:30–6:37' },
     { id:'m2', icon:'🧴', name:'Skin clearing & moisturizer', sub:'Morning acne treatment',       time:'6:37–6:40' },
     { id:'m3', icon:'🍳', name:'Breakfast',                   sub:'Morning fuel',                 time:'6:45–7:00' },
@@ -392,6 +393,7 @@ const WEEKDAY = {
     { id:'e7', icon:'🦷', name:'Brush teeth',                 sub:'Evening hygiene',              time:'21:30–21:35' },
     { id:'e8', icon:'📖', name:'1 chapter before sleep',      sub:'Reading time',                 time:'21:40–22:00' },
     { id:'e9', icon:'😴', name:'Fall asleep',                 sub:'Lights out',                   time:'22:15' },
+    { id:'e10', icon:'🧘', name:'No heavy tasks',              sub:'2h before sleep — relax only', time:'20:15' },
   ],
   daily: [
     { id:'h1', icon:'🚫', name:'No gooning' },
@@ -403,12 +405,14 @@ const WEEKDAY = {
     { id:'h7', icon:'📚', name:'Self-education' },
     { id:'h8', icon:'👨‍👩‍👦', name:'Family 30+ min' },
     { id:'h9', icon:'🔦', name:'Acne machine' },
+    { id:'h10', icon:'😴', name:'7h+ sleep' },
   ]
 };
 
 // HOLIDAY MODE — 30.6 to 31.8 — no school tasks, all times +1h
 const HOLIDAY = {
   morning: [
+    { id:'m0', icon:'💧', name:'Drink water',                sub:'First thing after waking',     time:'7:30' },
     { id:'m1', icon:'⚡', name:'Morning workout',             sub:'Full body activation',        time:'7:30–7:37' },
     { id:'m2', icon:'🧴', name:'Skin clearing & moisturizer', sub:'Morning acne treatment',       time:'7:37–7:40' },
     { id:'m3', icon:'🍳', name:'Breakfast',                   sub:'Morning fuel',                 time:'7:45–8:00' },
@@ -421,6 +425,7 @@ const HOLIDAY = {
     { id:'e7', icon:'🦷', name:'Brush teeth',                 sub:'Evening hygiene',              time:'22:30–22:35' },
     { id:'e8', icon:'📖', name:'1 chapter before sleep',      sub:'Reading time',                 time:'22:40–23:00' },
     { id:'e9', icon:'😴', name:'Fall asleep',                 sub:'Lights out',                   time:'23:15' },
+    { id:'e10', icon:'🧘', name:'No heavy tasks',              sub:'2h before sleep — relax only', time:'21:15' },
   ],
   daily: [
     { id:'h1', icon:'🚫', name:'No gooning' },
@@ -432,6 +437,7 @@ const HOLIDAY = {
     { id:'h7', icon:'📚', name:'Self-education' },
     { id:'h8', icon:'👨‍👩‍👦', name:'Family 30+ min' },
     { id:'h9', icon:'🔦', name:'Acne machine' },
+    { id:'h10', icon:'😴', name:'7h+ sleep' },
   ]
 };
 
