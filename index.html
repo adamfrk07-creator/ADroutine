@@ -201,6 +201,20 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
 .j-field-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); opacity: 0.7; margin-bottom: 3px; margin-top: 10px; }
 .j-field-label:first-child { margin-top: 0; }
 .j-field-text { font-size: 12.5px; color: var(--t2); line-height: 1.6; }
+/* STEPPERS */
+.stepper-row { display: flex; align-items: center; gap: 10px; }
+.step-btn { width: 42px; height: 42px; border-radius: 11px; background: var(--s2); border: 1px solid var(--border2); color: var(--text); font-size: 22px; font-weight: 300; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.12s; }
+.step-btn:active { background: var(--s3); }
+.step-mid { flex: 1; text-align: center; }
+.step-val { font-size: 26px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+.step-val.good { color: var(--lime); }
+.step-val.warn { color: var(--gold); }
+.step-val.bad  { color: var(--red); }
+.step-sub { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--t3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+.step-bar-bg { height: 4px; background: var(--s3); border-radius: 2px; margin-top: 10px; }
+.step-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+
+
 
 /* SETTINGS */
 .settings-wrap { padding: 16px; }
@@ -224,6 +238,8 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
 </head>
 <body>
 <div class="toast" id="toast"></div>
+
+
 <div class="app">
 
 <!-- TODAY -->
@@ -264,9 +280,16 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
     <div class="sec-label"><span class="sec-tag tg-teal">💧 Hydration</span><span class="sec-time">Goal: 2.5L</span></div>
     <div class="card"><div class="water-inner">
       <div class="water-top"><span class="water-title">Water intake</span><span class="water-val" id="water-val">0.0L</span></div>
-      <div class="water-goal">1 drop = 0.25L</div>
-      <div class="water-bar-bg"><div class="water-bar-fill" id="water-fill" style="width:0%"></div></div>
-      <div class="water-drops" id="water-drops"></div>
+      <div class="water-goal">+/− 0.25L per tap · no upper limit</div>
+      <div class="water-bar-bg" style="height:4px;background:var(--s3);border-radius:2px;margin:10px 0"><div class="water-bar-fill" id="water-fill" style="width:0%;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--teal),var(--lime));transition:width 0.3s"></div></div>
+      <div class="stepper-row" style="margin-top:8px">
+        <button class="step-btn" onclick="adjustWater(-0.25)">−</button>
+        <div class="step-mid">
+          <div class="step-val" id="water-stepper-val">0.0L</div>
+          <div class="step-sub" id="water-stepper-sub">0.0 / 2.5L</div>
+        </div>
+        <button class="step-btn" onclick="adjustWater(0.25)">+</button>
+      </div>
     </div></div>
   </div>
 
@@ -274,6 +297,20 @@ body { font-family: 'Outfit', sans-serif; color: var(--text); min-height: 100vh;
     <div class="sec-label"><span class="sec-tag tg-lime">✍️ Daily Journal</span></div>
     <div class="card">
       <div class="journal-body">
+        <!-- SLEEP -->
+        <div class="jprompt">
+          <div class="jlabel">😴 Spánek — kolik jsem spal</div>
+          <div class="stepper-row">
+            <button class="step-btn" onclick="adjustSleep(-15)">−</button>
+            <div class="step-mid">
+              <div class="step-val" id="sleep-val">0h 0m</div>
+              <div class="step-sub" id="sleep-sub">cíl: 7h 30m · +/− 15 min</div>
+            </div>
+            <button class="step-btn" onclick="adjustSleep(15)">+</button>
+          </div>
+          <div class="step-bar-bg"><div class="step-bar-fill" id="sleep-bar" style="width:0%;background:var(--red)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);margin-top:4px"><span>0h</span><span>4h</span><span style="color:var(--lime)">7h30 ✓</span><span>12h</span></div>
+        </div>
         <div class="jprompt"><div class="jlabel">What happened today</div><textarea class="jinput" id="j-happened" placeholder="Key moments, wins, challenges..." rows="2"></textarea></div>
         <div class="jprompt"><div class="jlabel">What could have been better</div><textarea class="jinput" id="j-better" placeholder="Be honest with yourself..." rows="2"></textarea></div>
         <div class="jprompt"><div class="jlabel">Short-term goals</div><textarea class="jinput" id="j-short" placeholder="This week / month..." rows="2"></textarea></div>
@@ -396,7 +433,7 @@ const WEEKDAY = {
     { id:'e10', icon:'🧘', name:'No heavy tasks',              sub:'2h before sleep — relax only', time:'20:15' },
   ],
   daily: [
-    { id:'h1', icon:'🚫', name:'No gooning' },
+    { id:'h1', icon:'🚫', name:'No porn' },
     { id:'h2', icon:'💬', name:'Talked to a woman' },
     { id:'h3', icon:'💧', name:'Water 2.5L' },
     { id:'h4', icon:'💪', name:'Take creatine' },
@@ -428,7 +465,7 @@ const HOLIDAY = {
     { id:'e10', icon:'🧘', name:'No heavy tasks',              sub:'2h before sleep — relax only', time:'21:15' },
   ],
   daily: [
-    { id:'h1', icon:'🚫', name:'No gooning' },
+    { id:'h1', icon:'🚫', name:'No porn' },
     { id:'h2', icon:'💬', name:'Talked to a woman' },
     { id:'h3', icon:'💧', name:'Water 2.5L' },
     { id:'h4', icon:'💪', name:'Take creatine' },
@@ -444,9 +481,27 @@ const HOLIDAY = {
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const WATER_GOAL = 2.5, WSTEP = 0.25, WDROPS = 10;
+const SLEEP_GOAL = 450; // 7h 30m in minutes
 const STREAK_THRESHOLD = 0.75;
 
 let state = {}, calYear, calMonth, weekendMode = false, holidayMode = false, ydayTasks = {};
+
+function loadState() {
+  try {
+    const r = localStorage.getItem('adam_v6');
+    if (r) {
+      const s = JSON.parse(r);
+      state = s;
+      weekendMode = s._weekend || false;
+      holidayMode = s._holiday !== undefined ? s._holiday : isHolidayDateRange(new Date());
+    }
+  } catch { state = {}; }
+}
+function saveState() {
+  state._weekend = weekendMode;
+  state._holiday = holidayMode;
+  localStorage.setItem('adam_v6', JSON.stringify(state));
+}
 
 // ─── MODE ───
 function isHolidayDateRange(date) {
@@ -483,15 +538,7 @@ function dayState() {
   if (!state[k]) state[k] = { habits:{}, water:0, mode:getTodayMode() };
   return state[k];
 }
-function loadState() {
-  try {
-    const r = localStorage.getItem('adam_v6');
-    state = r ? JSON.parse(r) : {};
-    weekendMode = state._weekend || false;
-    holidayMode = state._holiday !== undefined ? state._holiday : isHolidayDateRange(new Date());
-  } catch { state = {}; }
-}
-function saveState() { state._weekend = weekendMode; state._holiday = holidayMode; localStorage.setItem('adam_v6', JSON.stringify(state)); }
+
 
 function ckSVG(sz=12, col='#06060e') {
   return `<svg width="${sz}" height="${sz}" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="${col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -578,6 +625,7 @@ function renderToday() {
 
   renderStreak();
   renderWater();
+  renderSleep();
   checkYdayBanner();
   loadJournal();
 }
@@ -592,28 +640,59 @@ function toggle(id) {
 }
 
 // ─── WATER ───
+// ─── WATER ───
+function adjustWater(delta) {
+  const d = dayState();
+  d.water = Math.max(0, Math.round(((d.water||0) + delta) * 100) / 100);
+  d.habits['h3'] = d.water >= WATER_GOAL;
+  saveState(); renderWater();
+}
 function renderWater() {
   const d = dayState();
-  const L = Math.round((d.water || 0) * 100) / 100;
+  const L = Math.round((d.water||0) * 100) / 100;
   const pct = Math.min(L / WATER_GOAL, 1);
-  document.getElementById('water-val').textContent  = L.toFixed(1) + 'L';
-  document.getElementById('water-fill').style.width = (pct * 100) + '%';
-  const el = document.getElementById('water-drops');
-  el.innerHTML = '';
-  for (let i = 0; i < WDROPS; i++) {
-    const filled = (L / WATER_GOAL) * WDROPS > i;
-    const dr = document.createElement('div');
-    dr.className = 'wdrop' + (filled ? ' on' : '');
-    dr.textContent = '💧';
-    dr.onclick = () => {
-      const d2 = dayState();
-      const nv = (i + 1) * WSTEP;
-      d2.water = Math.abs((d2.water||0) - nv) < 0.01 ? nv - WSTEP : nv;
-      if (d2.water < 0) d2.water = 0;
-      d2.habits['h3'] = d2.water >= WATER_GOAL;
-      saveState(); renderToday();
-    };
-    el.appendChild(dr);
+  const over = L > WATER_GOAL;
+  const valEl = document.getElementById('water-val');
+  if (valEl) valEl.textContent = L.toFixed(2).replace(/\.?0+$/,'') + 'L';
+  const fillEl = document.getElementById('water-fill');
+  if (fillEl) {
+    fillEl.style.width = Math.min(pct * 100, 100) + '%';
+    fillEl.style.background = over ? 'linear-gradient(90deg,var(--lime),#38bdf8)' : 'linear-gradient(90deg,var(--teal),var(--lime))';
+  }
+  const sv = document.getElementById('water-stepper-val');
+  if (sv) {
+    sv.textContent = L.toFixed(2).replace(/\.?0+$/,'') + 'L';
+    sv.className = 'step-val ' + (L >= WATER_GOAL ? 'good' : L >= WATER_GOAL * 0.6 ? 'warn' : 'bad');
+  }
+  const ss = document.getElementById('water-stepper-sub');
+  if (ss) ss.textContent = over ? `${L.toFixed(2).replace(/\.?0+$/,'')}L — cíl splněn 💧` : `${L.toFixed(2).replace(/\.?0+$/,'')} / ${WATER_GOAL}L`;
+}
+
+// ─── SLEEP ───
+function adjustSleep(delta) {
+  const d = dayState();
+  d.sleepMin = Math.max(0, Math.min(720, (d.sleepMin||0) + delta));
+  d.habits['h10'] = d.sleepMin >= SLEEP_GOAL;
+  saveState(); renderSleep();
+}
+function renderSleep() {
+  const d = dayState();
+  const mins = d.sleepMin || 0;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const pct = Math.min(mins / SLEEP_GOAL, 1);
+  const over = mins >= SLEEP_GOAL;
+  const sv = document.getElementById('sleep-val');
+  if (sv) {
+    sv.textContent = `${h}h ${m}m`;
+    sv.className = 'step-val ' + (over ? 'good' : mins >= SLEEP_GOAL * 0.8 ? 'warn' : 'bad');
+  }
+  const ss = document.getElementById('sleep-sub');
+  if (ss) ss.textContent = over ? `✓ cíl splněn (${h}h ${m}m)` : `cíl: 7h 30m`;
+  const bar = document.getElementById('sleep-bar');
+  if (bar) {
+    bar.style.width = Math.min(pct * 100, 100) + '%';
+    bar.style.background = over ? 'var(--lime)' : mins >= SLEEP_GOAL * 0.8 ? 'var(--gold)' : 'var(--red)';
   }
 }
 
@@ -692,6 +771,7 @@ function loadJournal() {
   document.getElementById('j-better').value   = j.better   || '';
   document.getElementById('j-short').value    = j.short    || '';
   document.getElementById('j-long').value     = j.long     || '';
+  renderSleep();
 }
 function saveJournal() {
   const d = dayState();
@@ -728,6 +808,8 @@ function renderJournalEntries() {
         <div class="j-entry-chevron">▼</div>
       </div>
       <div class="j-entry-body" id="ebody-${k}">
+        ${s.sleepMin ? `<div class="j-field-label">😴 Spánek</div><div class="j-field-text">${Math.floor(s.sleepMin/60)}h ${s.sleepMin%60}m ${s.sleepMin>=SLEEP_GOAL?'✓':'— cíl 7h 30m'}</div>` : ''}
+        ${s.water ? `<div class="j-field-label">💧 Voda</div><div class="j-field-text">${s.water}L ${s.water>=WATER_GOAL?'✓':''}</div>` : ''}
         ${j.happened ? `<div class="j-field-label">What happened</div><div class="j-field-text">${j.happened}</div>` : ''}
         ${j.better   ? `<div class="j-field-label">What could be better</div><div class="j-field-text">${j.better}</div>` : ''}
         ${j.short    ? `<div class="j-field-label">Short-term goals</div><div class="j-field-text">${j.short}</div>` : ''}
@@ -889,8 +971,12 @@ function init() {
     calYear = now.getFullYear(); calMonth = now.getMonth();
     document.getElementById('today-date').textContent =
       `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+    // Load from localStorage immediately — show app right away
     loadState();
+    document.querySelector('.app').style.display = 'block';
     renderToday();
+
   } catch (e) {
     document.body.innerHTML = '<div style="padding:40px 20px;color:#fff;font-family:monospace;font-size:13px;white-space:pre-wrap">ERROR LOADING APP:\n\n' + e.message + '\n\n' + (e.stack||'') + '</div>';
   }
